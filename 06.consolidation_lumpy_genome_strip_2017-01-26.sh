@@ -75,7 +75,7 @@ zcat gs.contained.f_$FRAC.bed.gz \
     > gs.contained.f_$FRAC.txt
 
 # get the genotype correlations for the contained GS calls
-/gscmnt/gc2719/halllab/users/cchiang/projects/gtex/src/var_gt_corr.py \
+/gscmnt/gc2802/halllab/cchiang/projects.2719/gtex/src/var_gt_corr.py \
     -a $LUMPY \
     -b $GS \
     -v gs.contained.f_$FRAC.txt \

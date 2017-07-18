@@ -101,7 +101,7 @@ def main():
             cluster.remove(delete)
             delete = check_cluster(cluster,linkage,r2)
             # check if we need to find additional clusters for deleted variant
-            if any(x>r2 in linkage[delete]):
+            if any(x>r2 for x in linkage[delete]):
                 clust2 = set()
                 clust2.add(delete)
                 for var in linkage[delete]:

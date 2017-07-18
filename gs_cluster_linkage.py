@@ -99,7 +99,6 @@ def main():
         delete = check_cluster(cluster,linkage,r2)
         while delete != "NA":
             cluster.remove(delete)
-            delete = check_cluster(cluster,linkage,r2)
             # check if we need to find additional clusters for deleted variant
             if any(x>r2 for x in linkage[delete]):
                 clust2 = set()
@@ -112,6 +111,7 @@ def main():
                     clust2.remove(del2)
                     del2=check_cluster(clust2,linkage,r2)
                 print(",".join(clust2))
+            delete = check_cluster(cluster,linkage,r2)
         print(",".join(cluster))
 
     # close files

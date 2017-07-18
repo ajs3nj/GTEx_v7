@@ -2,6 +2,7 @@
 
 import argparse, sys
 from argparse import RawTextHelpFormatter
+import gzip
 
 __author__ = "Alexandra Scott (ajscott@wustl.edu)"
 __version__ = "$Revision: 0.0.1 $"

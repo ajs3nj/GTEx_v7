@@ -110,9 +110,11 @@ def main():
                 while del2 != 'NA':
                     clust2.remove(del2)
                     del2=check_cluster(clust2,linkage,r2)
-                print(",".join(clust2))
+                if len(clust2) > 1:
+                    print(",".join(clust2))
             delete = check_cluster(cluster,linkage,r2)
-        print(",".join(cluster))
+        if len(cluster) > 1:
+            print(",".join(cluster))
 
     # close files
     input_file.close()

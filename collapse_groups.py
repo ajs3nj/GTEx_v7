@@ -42,12 +42,25 @@ def get_file(filename):
         data = open(filename, 'r')
     return data
 
-def check_groups(variant,groups):
-    index = "NA"
-    for i in range(0,len(groups)):
-        if variant in groups[i]:
-            index = i
-    return index
+def make_chains(group, chains):
+    to_merge=group
+    merged = False
+    remove = set()
+    if len(chains) != 0:
+        for x in range(0,len(chains)):
+            for index in group:
+                if index in chains[x]:
+                    to_merge = to_merge | chains[x]
+                    merged = True
+                    remove.add(x)
+    if merged == False:
+        chains.append(to_merge)
+    else:
+        for y in remove:
+            chains.pop(y)
+    return chains    
+
+
 
 # --------------------------------------
 # main function
@@ -62,18 +75,13 @@ def main():
     else:
         input_file = get_file(args.input_path)
 
-
     # run functions
-    groups = []
+    chains = []
     for line in input_file:
-        cluster = set(line.rstrip('\n').split(','))
-        for variant in cluster:
-            index = check_groups(variant,groups)
-        if index == "NA":
-            groups.append(cluster)
-        else:
-            groups[index].union(cluster)
-    for x in groups:
+        chains = make_chains(set(line.rstrip('\n').split(',')), chains)
+
+    # print results
+    for x in chains:
         print(",".join(x))
 
     # close files

@@ -53,9 +53,8 @@ def make_chains(group, chains):
                     to_merge = to_merge | chains[x]
                     merged = True
                     remove.add(x)
-    if merged == False:
-        chains.append(to_merge)
-    else:
+    chains.append(to_merge)
+    if merged==True:
         for y in remove:
             chains.pop(y)
     return chains    

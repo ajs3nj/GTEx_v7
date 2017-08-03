@@ -2,7 +2,6 @@
 
 import argparse, sys
 from argparse import RawTextHelpFormatter
-import gzip
 
 __author__ = "Alexandra Scott (ajscott@wustl.edu)"
 __version__ = "$Revision: 0.0.1 $"
@@ -29,7 +28,7 @@ def get_args():
     parser.add_argument('-r2', '--r2-threshold',
                         dest='r2_threshold',
                         required=False,
-                        type=float,default=0.97)
+                        type=float,default=0.9)
 
     # parse the arguments
     args = parser.parse_args()
@@ -56,16 +55,28 @@ def get_linkage(linkage_file):
     linkage = {}
     for l in linkage_file:
         l_split = l.rstrip('\n').split('\t')
-        linkage[l_split[0]] = {}
+        if l_split[0] not in linkage:
+            linkage[l_split[0]] = {}
         linkage[l_split[0]][l_split[1]]=l_split[2]
     return linkage
+
+def subset_linked(cluster,linkage,r2):
+    linked = set()
+    for var1 in cluster:
+        for var2 in cluster:
+            if var1 != var2:
+                if linkage[var1][var2] >= r2:
+                    linked.add(var1)
+                    linked.add(var2)                
+    return linked
+
 
 # check if all variants in cluster are linked, if not choose one to remove
 def check_cluster(cluster,linkage,r2):
     unlinked_counts = {}
     for test_variant in cluster:
         unlinked_counts[test_variant] = 0
-        for compare_variant in linkage[test_variant]:
+        for compare_variant in cluster:
             if float(linkage[test_variant][compare_variant]) < r2:
                 unlinked_counts[test_variant] += 1
     if all(x==0 for x in unlinked_counts.values()):
@@ -95,26 +106,26 @@ def main():
     linkage = get_linkage(linkage_file)
 
     for line in input_file:
-        cluster = line.rstrip('\n').split(',')
-        delete = check_cluster(cluster,linkage,r2)
-        while delete != "NA":
-            cluster.remove(delete)
-            # check if we need to find additional clusters for deleted variant
-            if any(x>r2 for x in linkage[delete]):
-                clust2 = set()
-                clust2.add(delete)
-                for var in linkage[delete]:
-                    if linkage[delete][var] < r2:
-                        clust2.add(var)
-                del2=check_cluster(clust2,linkage,r2)
-                while del2 != 'NA':
-                    clust2.remove(del2)
-                    del2=check_cluster(clust2,linkage,r2)
-                if len(clust2) > 1:
-                    print(",".join(clust2))
+        # get input group
+        group = line.rstrip('\n').split(',')
+
+        # only create clusters with variants that are tightly linked to another variant
+        linked_cluster = subset_linked(group,linkage,r2)
+
+        # make clusters
+        while len(linked_cluster) > 1:
+            cluster = linked_cluster.copy()
             delete = check_cluster(cluster,linkage,r2)
-        if len(cluster) > 1:
-            print(",".join(cluster))
+            while delete != "NA":
+                cluster.remove(delete)
+                delete = check_cluster(cluster,linkage,r2)
+            if len(cluster) > 1:
+                print(",".join(cluster))
+                linked_cluster = subset_linked(linked_cluster-cluster,linkage,r2)
+            else:
+                break
+
+   
 
     # close files
     input_file.close()

@@ -21,7 +21,7 @@ zcat /gscmnt/gc2802/halllab/gtex_2016-06-01/genomeStrip_2016-07-28/gs_cnv.genoty
     | awk '{ if ($0~"^#") { print; next; } $9=$9":DS"; split($9,fmt,":"); for (i=1;i<=length(fmt);++i) { if (fmt[i]=="CN") fmt_idx=i } for (i=10;i<=NF;++i) { split($i,gt,":"); $i=$i":"gt[fmt_idx]*2 } print }' OFS="\t" \
     | /gscmnt/gc2719/halllab/users/cchiang/src/svtyper/scripts/vcf_modify_header.py -i DS -c FORMAT -n A -t Float -d "Dosage of alt allele" \
     | vawk --header '{ $3="GS_"I$GSCNCATEGORY"_"$3; $8=$8";CIPOS=-100,100;CIEND=-100,100"; print }' \
-    | /gscmnt/gc2719/halllab/users/cchiang/projects/gtex/src/vcf_covar.py -c /gscmnt/gc2802/halllab/gtex_2016-06-01/merge_2016-08-11/gtex_wgs_covar.txt -f CN \
+    | /gscmnt/gc2802/halllab/cchiang/projects.2719/gtex/src/vcf_covar.py -c /gscmnt/gc2802/halllab/gtex_2016-06-01/merge_2016-08-11/gtex_wgs_covar.txt -f CN \
     | /gscmnt/gc2719/halllab/users/cchiang/src/svtyper/scripts/vcf_modify_header.py -i "PLATFORM" -c FILTER -d "Variant genotypes correlate with sequencing platform with R^2 greater than 0.1" \
     | vawk --header '{ if (I$EXVAR>0.1) $7="PLATFORM"; print }' \
     | vawk --header '{ if ($7=="PASS") $7="."; print }' \
@@ -37,7 +37,7 @@ zcat gtex.genome_strip.filt_annot.vcf.gz \
     | vawk --header '{ if (I$SVTYPE!="CNV") { print; next } delete ALLELE; for (i=10;i<=NF;++i) ALLELE[$i]++; MODE=0; MODE_ALLELE=0; for (a in ALLELE) { if (ALLELE[a] > MODE) { MODE=ALLELE[a]; MODE_ALLELE=a } } NSAMP=0; for (i=10;i<=NF;++i) { if ($i!=MODE_ALLELE) NSAMP++ } if (NSAMP<=2) { printf $1; for (i=2;i<=8;++i) printf "\t"$i; printf "\tGT"; for (i=10;i<=NF;++i) { if ($i==MODE_ALLELE) printf "\t0/0"; else printf "\t0/1" } printf "\n" } }' \
     | /gscmnt/gc2719/halllab/users/cchiang/src/svtyper/scripts/vcf_allele_freq.py \
     | /gscmnt/gc2719/halllab/users/cchiang/src/svtyper/scripts/vcf_modify_header.py -i POSSAMP -c INFO -t String -n "." -d "Positively genotyped samples" \
-    | /gscmnt/gc2719/halllab/users/cchiang/projects/gtex/src/get_pos_samples.py \
+    | /gscmnt/gc2802/halllab/cchiang/projects.2719/gtex/src/get_pos_samples.py \
     | bgzip -c \
     > gtex.genome_strip.private_doubleton.low_pass.vcf.gz
 tabix -p vcf -f gtex.genome_strip.private_doubleton.low_pass.vcf.gz
@@ -104,8 +104,6 @@ zcat gtex.genome_strip.filt_annot.merged.vcf.gz \
     | bgzip -c \
     > gtex.genome_strip.filt_annot.merged.low_pass.vcf.gz
 tabix -p vcf -f gtex.genome_strip.filt_annot.merged.low_pass.vcf.gz
-
-
 
 
 
